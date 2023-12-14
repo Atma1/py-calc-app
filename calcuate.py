@@ -33,7 +33,6 @@ def evaluate(op1, op2, token):
 
 def evaluate_postfix(expression):
     stack = Stack()
-
     operators = set(['+', '-', '*', '/'])
 
     for token in expression:
