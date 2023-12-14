@@ -42,3 +42,4 @@ class InfixToPostfix:
             postfix_expression.append(stack.pop())
 
         return "".join(postfix_expression)
+    
