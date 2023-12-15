@@ -1,3 +1,6 @@
+import string
+
+
 class Stack:
     def __init__(self):
         self.items = []
@@ -52,16 +55,27 @@ def evaluate_postfix(expression):
         print("Error: Invalid expression")
         return None
 
-def infix_to_postfix(infix_expression):
+def infix_to_postfix(infix_expression: list) -> list:
     precedence = {'+': 1, '-': 1, '*': 2, '/': 2}
 
     postfix_expression = []
     operator_stack = Stack()
+    skip = 0
 
-    for token in infix_expression:
-        print(token)
-        if token.isdigit():
-            postfix_expression.append(token)
+    for idx, token in enumerate(infix_expression):
+        if skip > 0:
+            skip -= 1
+            pass
+        elif token.isdigit():
+            i = idx
+            val = 0
+            skip = -1
+            while (i < len(infix_expression)) and infix_expression[i].isdigit():
+                print(i)
+                val = (val * 10) + int(infix_expression[i])
+                skip += 1
+                i += 1
+            postfix_expression.append(str(val))
         elif token in precedence:
             while (not operator_stack.is_empty() and
                    operator_stack.peek() in precedence and
