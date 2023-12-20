@@ -63,19 +63,21 @@ def infix_to_postfix(infix_expression: list) -> list:
     skip = 0
 
     for idx, token in enumerate(infix_expression):
+        # Skip the current loop when the number is > 9.
         if skip > 0:
             skip -= 1
             pass
+        # Check if the current string is a number
         elif token.isdigit():
             i = idx
-            val = 0
+            temp_number = 0
             skip = -1
             while (i < len(infix_expression)) and infix_expression[i].isdigit():
-                print(i)
-                val = (val * 10) + int(infix_expression[i])
+                temp_number = (temp_number * 10) + int(infix_expression[i])
                 skip += 1
                 i += 1
-            postfix_expression.append(str(val))
+            postfix_expression.append(str(temp_number))
+        # Check if the current string is an operand
         elif token in precedence:
             while (not operator_stack.is_empty() and
                    operator_stack.peek() in precedence and
