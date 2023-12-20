@@ -1,3 +1,6 @@
+import tkinter as tk
+from tkinter import ttk
+
 class Stack:
     def __init__(self):
         self.items = []
@@ -15,7 +18,7 @@ class Stack:
     def peek(self):
         if not self.is_empty():
             return self.items[-1]
-        
+
 def evaluate(op1, op2, token):
     if token == '+':
         result = op1 + op2
@@ -32,16 +35,6 @@ def evaluate(op1, op2, token):
     return result
 
 def evaluate_postfix(expression):
-    """
-    Evaluate an infix expression list.
-
-    Args:
-        expression: Infix expression list.
-
-    Returns:
-        Infix expression evaluated.
-    
-    """
     result_stack = Stack()
     operators = ['+', '-', '*', '/']
 
@@ -52,7 +45,7 @@ def evaluate_postfix(expression):
             operand2 = result_stack.pop()
             operand1 = result_stack.pop()
 
-            if operand1 == None or operand2 == None:
+            if operand1 is None or operand2 is None:
                 print("Error: Invalid expression")
                 return None
 
@@ -66,17 +59,7 @@ def evaluate_postfix(expression):
         print("Error: Invalid expression")
         return None
 
-def infix_to_postfix(infix_expression: list) -> list:
-    """
-    Turns an infix expression e.g 3+4 into postfix expression e.g 34+.
-
-    Args:
-      infix_expression: A string of an infix expression.
-
-    Returns:
-      A list of postfix expression with each number/operand as seperate array.
-
-    """
+def infix_to_postfix(infix_expression):
     precedence = {'+': 1, '-': 1, '*': 2, '/': 2}
 
     postfix_expression = []
@@ -84,11 +67,9 @@ def infix_to_postfix(infix_expression: list) -> list:
     skip = 0
 
     for idx, token in enumerate(infix_expression):
-        # Skip the current loop when the number is > 9.
         if skip > 0:
             skip -= 1
             pass
-        # Check if the current string is a number
         elif token.isdigit():
             i = idx
             temp_number = 0
@@ -98,34 +79,91 @@ def infix_to_postfix(infix_expression: list) -> list:
                 skip += 1
                 i += 1
             postfix_expression.append(str(temp_number))
-        # Check if the current string is an operand
         elif token in precedence:
             while (not operator_stack.is_empty() and
-                   operator_stack.peek() in precedence and
-                   precedence[operator_stack.peek()] >= precedence[token]):
+                    operator_stack.peek() in precedence and
+                    precedence[operator_stack.peek()] >= precedence[token]):
                 postfix_expression.append(operator_stack.pop())
             operator_stack.push(token)
         elif token == '(':
             operator_stack.push(token)
         elif token == ')':
             while (not operator_stack.is_empty() and
-                   operator_stack.peek() != '('):
+                    operator_stack.peek() != '('):
                 postfix_expression.append(operator_stack.pop())
-            operator_stack.pop()  # Pop the '('
+            operator_stack.pop()
 
     while not operator_stack.is_empty():
         postfix_expression.append(operator_stack.pop())
 
     return postfix_expression
 
-infix_expression = input("Enter an infix expression: ")
+# Stylish Calculator Class
+class StylishCalculator(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Kalkulator Infix Expression")
+        self.geometry("400x500")
 
-postfix_expression = infix_to_postfix(infix_expression)
+        # Styling
+        self.style = ttk.Style(self)
+        self.style.configure("TButton", padding=10, font=('Helvetica', 12))
+        self.style.configure("TEntry", padding=10, font=('Helvetica', 14))
 
-print(postfix_expression)
-if postfix_expression:
-    print("Postfix expression:", " ".join(postfix_expression))
+        # Create GUI elements
+        self.entry = ttk.Entry(self, width=20, font=('Helvetica', 18))
+        self.entry.grid(row=0, column=0, columnspan=4, pady=10, padx=10, sticky="nsew")
 
-    result = evaluate_postfix(postfix_expression)
-    if result is not None:
-        print("Result:", result)
+        # Number buttons
+        for i in range(1, 10):
+            ttk.Button(self, text=str(i), command=lambda i=i: self.on_button_click(i)).grid(row=(i-1)//3 + 1, column=(i-1)%3, sticky="nsew")
+
+        # Operator buttons
+        operators = ['+', '-', '*', '/']
+        for i, operator in enumerate(operators):
+            ttk.Button(self, text=operator, command=lambda operator=operator: self.on_operator_click(operator)).grid(row=i+1, column=3, sticky="nsew")
+
+        # Other buttons
+        ttk.Button(self, text='0', command=lambda: self.on_button_click(0)).grid(row=4, column=1, sticky="nsew")
+        ttk.Button(self, text='=', command=self.on_calculate).grid(row=4, column=2, sticky="nsew")
+        ttk.Button(self, text='C', command=self.on_clear).grid(row=4, column=0, sticky="nsew")
+        ttk.Button(self, text='←', command=self.on_backspace).grid(row=4, column=3, sticky="nsew")
+
+        # Configure grid
+        for i in range(5):
+            self.grid_rowconfigure(i, weight=1)
+            self.grid_columnconfigure(i, weight=1)
+
+    def on_button_click(self, value):
+        current_expression = self.entry.get()
+        self.entry.delete(0, tk.END)
+        self.entry.insert(tk.END, current_expression + str(value))
+
+    def on_operator_click(self, operator):
+        current_expression = self.entry.get()
+        self.entry.delete(0, tk.END)
+        self.entry.insert(tk.END, current_expression + operator)
+
+    def on_clear(self):
+        self.entry.delete(0, tk.END)
+
+    def on_backspace(self):
+        current_expression = self.entry.get()
+        self.entry.delete(0, tk.END)
+        self.entry.insert(tk.END, current_expression[:-1])
+
+    def on_calculate(self):
+        infix_expression = self.entry.get()
+        postfix_expression = infix_to_postfix(infix_expression)
+
+        if postfix_expression:
+            self.entry.delete(0, tk.END)
+            self.entry.insert(tk.END, " ".join(postfix_expression))
+
+            result = evaluate_postfix(postfix_expression)
+            if result is not None:
+                self.entry.insert(tk.END, "\n Hasil: " + str(result))
+
+if __name__ == "__main__":
+    app = StylishCalculator()
+    app.mainloop()
