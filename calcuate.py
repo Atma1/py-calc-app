@@ -1,3 +1,6 @@
+from types import NoneType
+
+
 class Stack:
     def __init__(self):
         self.items = []
@@ -32,22 +35,26 @@ def evaluate(op1, op2, token):
     return result
 
 def evaluate_postfix(expression):
-    stack = Stack()
+    result_stack = Stack()
     operators = ['+', '-', '*', '/']
 
     for token in expression:
         if token.isdigit():
-            stack.push(int(token))
+            result_stack.push(int(token))
         elif token in operators:
-            operand2 = stack.pop()
-            operand1 = stack.pop()
+            operand2 = result_stack.pop()
+            operand1 = result_stack.pop()
+
+            if operand1 == None or operand2 == None:
+                print("Error: Invalid expression")
+                return None
 
             result = evaluate(operand1, operand2, token)
 
-            stack.push(result)
+            result_stack.push(result)
 
-    if not stack.is_empty():
-        return stack.pop()
+    if not result_stack.is_empty():
+        return result_stack.pop()
     else:
         print("Error: Invalid expression")
         return None
