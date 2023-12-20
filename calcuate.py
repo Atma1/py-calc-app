@@ -35,6 +35,16 @@ def evaluate(op1, op2, token):
     return result
 
 def evaluate_postfix(expression):
+    """
+    Evaluate an infix expression list.
+
+    Args:
+        expression: Infix expression list.
+
+    Returns:
+        Infix expression evaluated.
+    
+    """
     result_stack = Stack()
     operators = ['+', '-', '*', '/']
 
@@ -60,6 +70,16 @@ def evaluate_postfix(expression):
         return None
 
 def infix_to_postfix(infix_expression: list) -> list:
+    """
+    Turns an infix expression e.g 3+4 into postfix expression e.g 34+.
+
+    Args:
+      infix_expression: A string of an infix expression.
+
+    Returns:
+      A list of postfix expression with each number/operand as seperate array.
+
+    """
     precedence = {'+': 1, '-': 1, '*': 2, '/': 2}
 
     postfix_expression = []
